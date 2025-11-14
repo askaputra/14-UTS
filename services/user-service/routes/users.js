@@ -23,11 +23,9 @@ router.get('/', (req, res) => {
 // GET /api/users/:id - Get user by ID
 router.get('/:id', (req, res) => {
   const user = users.find(u => u.id === req.params.id);
-  
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
-  
   res.json({
     id: user.id,
     name: user.name,
@@ -38,10 +36,9 @@ router.get('/:id', (req, res) => {
 });
 
 // RUTE BARU: PUT /api/users/join-team
-// Ini adalah rute yang dicari oleh frontend Anda
 router.put('/join-team', (req, res) => {
   const userId = req.headers['x-user-id']; 
-  const { teamId } = req.body; //misal: 'team-1'
+  const { teamId } = req.body; 
 
   if (!userId) {
     return res.status(401).json({ error: 'Not authenticated' });
@@ -52,32 +49,27 @@ router.put('/join-team', (req, res) => {
     return res.status(404).json({ error: 'User not found' });
   }
 
-  // Update teamId di "database"
   user.teamId = teamId;
   console.log(`User ${user.email} joined team ${teamId}`);
 
-  // Buat token BARU dengan teamId yang sudah di-update
   const payload = {
     id: user.id,
     email: user.email,
     name: user.name,
-    teamId: user.teamId, // teamId baru
-    role: user.role // sertakan peran
+    teamId: user.teamId, 
+    role: user.role
   };
   
   const token = jwt.sign(payload, PRIVATE_KEY, {
     algorithm: JWT_ALGORITHM,
-    expiresIn: '7d' // Samakan dengan login
+    expiresIn: '7d' 
   });
 
-  // Kirim kembali data user dan token baru
   res.json({
     message: 'Team joined successfully',
-    token, // Kirim token baru
-    user: payload // Kirim data user baru
+    token, 
+    user: payload 
   });
 });
-
-// Rute PUT dan DELETE lama yang menyebabkan error sudah dihapus.
 
 module.exports = router;

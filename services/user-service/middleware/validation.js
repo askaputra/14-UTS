@@ -1,19 +1,19 @@
 const Joi = require('joi');
 
-// Skema registrasi user
+// Skema registrasi user BARU
 const userSchema = Joi.object({
   name: Joi.string().min(2).max(50).required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required()
 });
 
-// Skema login user
+// Skema login user BARU
 const loginSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required()
 });
 
-// Skema tim
+// Skema tim BARU (INI YANG HILANG)
 const teamSchema = Joi.object({
   name: Joi.string().min(2).max(50).required()
 });
@@ -30,8 +30,9 @@ const validateRequest = (schema) => (req, res, next) => {
   next();
 };
 
+// Ekspor BARU
 module.exports = {
   validateUser: validateRequest(userSchema),
   validateLogin: validateRequest(loginSchema),
-  //validateTeam: validateRequest(teamSchema)
+  validateTeam: validateRequest(teamSchema) // <-- SEKARANG validateTeam SUDAH ADA
 };
