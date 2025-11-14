@@ -10,7 +10,6 @@ const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'RS256';
 
 // GET /api/users - Get all users
 router.get('/', (req, res) => {
-  // Mengembalikan data user yang aman (tanpa password)
   const safeUsers = users.map(u => ({
     id: u.id,
     name: u.name,
@@ -29,7 +28,6 @@ router.get('/:id', (req, res) => {
     return res.status(404).json({ error: 'User not found' });
   }
   
-  // Kirim data yang aman
   res.json({
     id: user.id,
     name: user.name,
@@ -40,9 +38,8 @@ router.get('/:id', (req, res) => {
 });
 
 // RUTE BARU: PUT /api/users/join-team
-// Ini dipanggil oleh frontend saat user baru login
+// Ini adalah rute yang dicari oleh frontend Anda
 router.put('/join-team', (req, res) => {
-  // Dapatkan ID user dari header yang disisipkan gateway (dari token)
   const userId = req.headers['x-user-id']; 
   const { teamId } = req.body; //misal: 'team-1'
 

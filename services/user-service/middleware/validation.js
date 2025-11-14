@@ -33,5 +33,5 @@ const validateRequest = (schema) => (req, res, next) => {
 module.exports = {
   validateUser: validateRequest(userSchema),
   validateLogin: validateRequest(loginSchema),
-  validateTeam: validateRequest(teamSchema)
+  //validateTeam: validateRequest(teamSchema)
 };

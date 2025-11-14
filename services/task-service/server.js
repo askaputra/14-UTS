@@ -13,14 +13,38 @@ const app = express();
 const pubsub = new PubSub();
 const NOTIFICATION_ADDED = 'NOTIFICATION_ADDED';
 
-// Data
+// In-memory data (DIPERBARUI DENGAN USER ID DUMMY)
 let tasks = [
-  { id: '1', title: 'Set up project structure', description: 'Create folders for all 4 services', status: 'done', teamId: 'team-1', assignedToId: 'user-1', createdAt: new Date().toISOString() },
-  { id: '2', title: 'Implement JWT Auth', description: 'User service creates token, Gateway verifies token', status: 'inprogress', teamId: 'team-1', assignedToId: 'user-1', createdAt: new Date().toISOString() },
-  { id: '3', title: 'Build Frontend UI', description: 'Create login page and task board', status: 'todo', teamId: 'team-1', assignedToId: 'user-2', createdAt: new Date().toISOString() }
+  {
+    id: '1',
+    title: 'Set up project structure',
+    description: 'Create folders for all 4 services',
+    status: 'done',
+    teamId: 'team-1',
+    assignedToId: 'admin-user-01', // Ditugaskan ke Admin
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: '2',
+    title: 'Implement JWT Auth',
+    description: 'User service creates token, Gateway verifies token',
+    status: 'inprogress',
+    teamId: 'team-1',
+    assignedToId: 'admin-user-01', // Ditugaskan ke Admin
+    createdAt: new Date().toISOString()
+  },
+    {
+    id: '3',
+    title: 'Build Frontend UI',
+    description: 'Create login page and task board',
+    status: 'todo',
+    teamId: 'team-1',
+    assignedToId: 'normal-user-02', // Ditugaskan ke User Biasa
+    createdAt: new Date().toISOString()
+  }
 ];
 
-// GraphQL type definitions
+// GraphQL type definitions (TIDAK BERUBAH)
 const typeDefs = `
   enum TaskStatus { todo, inprogress, done }
   type Task { id: ID!, title: String!, description: String, status: TaskStatus!, teamId: ID!, assignedToId: ID, createdAt: String! }
@@ -34,11 +58,10 @@ const typeDefs = `
   type Subscription { notificationAdded(teamId: ID!): Notification! }
 `;
 
-// GraphQL resolvers (DIPERBARUI)
+// GraphQL resolvers (TIDAK BERUBAH)
 const resolvers = {
   Query: {
     tasks: (_, { teamId }, context) => {
-      // Cek teamId dari token
       if (context.user.teamId !== teamId) {
         throw new Error('Not authorized to view tasks for this team');
       }
@@ -81,9 +104,7 @@ const resolvers = {
       pubsub.publish(NOTIFICATION_ADDED, { notificationAdded: notification });
       return task;
     },
-    // LOGIKA PERAN (ROLE) BARU
     deleteTask: (_, { id }, context) => {
-      // Cek peran dari context
       if (context.user.role !== 'admin') {
         throw new Error('Only admins can delete tasks');
       }
@@ -113,7 +134,7 @@ const resolvers = {
   },
 };
 
-// Fungsi Start Server (DIPERBARUI)
+// Start Server (TIDAK BERUBAH)
 async function startServer() {
   app.use(cors());
   const schema = makeExecutableSchema({ typeDefs, resolvers });
@@ -127,12 +148,11 @@ async function startServer() {
 
   const server = new ApolloServer({
     schema,
-    // BACA HEADER PERAN BARU
     context: ({ req }) => {
       const userId = req.headers['x-user-id'];
       const userEmail = req.headers['x-user-email'];
       const teamId = req.headers['x-user-teamid'];
-      const userRole = req.headers['x-user-role']; // Ambil peran
+      const userRole = req.headers['x-user-role'];
       
       if (!userId) return {};
       
@@ -141,7 +161,7 @@ async function startServer() {
           id: userId, 
           email: userEmail,
           teamId: teamId,
-          role: userRole // Tambahkan ke context
+          role: userRole
         }
       };
     },
