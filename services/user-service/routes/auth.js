@@ -7,12 +7,10 @@ const { users } = require('../db/inMemoryDb');
 
 const router = express.Router();
 
-// Ambil kunci dari variabel lingkungan dan format ulang
 const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
 const PUBLIC_KEY = process.env.PUBLIC_KEY.replace(/\\n/g, '\n');
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'RS256';
 
-// RUTE: POST /api/auth/register
 router.post('/register', validateUser, async (req, res) => {
   const { name, email, password } = req.body;
   if (users.find(u => u.email === email)) {
@@ -20,14 +18,14 @@ router.post('/register', validateUser, async (req, res) => {
   }
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-  const role = (email === 'admin@email.com') ? 'admin' : 'user'; // Logika Peran
+  const role = (email === 'admin@email.com') ? 'admin' : 'user'; 
   const newUser = {
     id: uuidv4(),
     name,
     email,
     password: hashedPassword,
     teamId: null,
-    role: role, // Tambahkan peran
+    role: role, 
     createdAt: new Date().toISOString(),
   };
   users.push(newUser);
@@ -44,7 +42,6 @@ router.post('/register', validateUser, async (req, res) => {
   });
 });
 
-// RUTE: POST /api/auth/login
 router.post('/login', validateLogin, async (req, res) => {
   const { email, password } = req.body;
   const user = users.find(u => u.email === email);
@@ -55,14 +52,14 @@ router.post('/login', validateLogin, async (req, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     console.log('Login failed: password mismatch for', email);
-    return res.status(401).json({ error: 'Invalid credentials' }); // Ini baris 57
+    return res.status(401).json({ error: 'Invalid credentials' }); 
   }
   const payload = {
     id: user.id,
     email: user.email,
     name: user.name, 
     teamId: user.teamId,
-    role: user.role // Tambahkan peran ke token
+    role: user.role 
   };
   const token = jwt.sign(payload, PRIVATE_KEY, {
     algorithm: JWT_ALGORITHM,
@@ -82,14 +79,11 @@ router.post('/login', validateLogin, async (req, res) => {
   });
 });
 
-// RUTE: GET /api/auth/public-key
 router.get('/public-key', (req, res) => {
   res.json({ publicKey: PUBLIC_KEY });
 });
 
-// RUTE BARU: GET /api/auth/check-token
 router.get('/check-token', (req, res) => {
-  // Data user diambil dari header yang disisipkan gateway (dari token LAMA)
   const payload = {
     id: req.headers['x-user-id'],
     email: req.headers['x-user-email'],
@@ -102,15 +96,13 @@ router.get('/check-token', (req, res) => {
     return res.status(401).json({ error: 'Invalid token data provided by gateway' });
   }
 
-  // Buat token BARU
   const token = jwt.sign(payload, PRIVATE_KEY, {
     algorithm: JWT_ALGORITHM,
-    expiresIn: '7d' // Buat token baru untuk 7 hari lagi
+    expiresIn: '7d' 
   });
 
   console.log(`Token refreshed for: ${payload.email}`);
 
-  // Kirim kembali token baru dan data user
   res.json({
     token,
     user: payload

@@ -9,7 +9,6 @@ export const apiClient = axios.create({
   },
 });
 
-// Interceptor (ini sudah benar)
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('jwt_token');
@@ -23,7 +22,6 @@ apiClient.interceptors.request.use(
   }
 );
 
-// API untuk Autentikasi
 export const authApi = {
   login: (data: { email: string; password: string }) => 
     apiClient.post('/api/auth/login', data),
@@ -36,6 +34,5 @@ export const authApi = {
   joinTeam: (data: { teamId: string }) =>
     apiClient.put('/api/users/join-team', data),
 
-  // FUNGSI BARU DITAMBAHKAN:
   checkToken: () => apiClient.get('/api/auth/check-token'),
 };

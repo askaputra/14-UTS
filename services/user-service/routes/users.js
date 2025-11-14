@@ -1,10 +1,9 @@
 const express = require('express');
 const { users } = require('../db/inMemoryDb');
-const jwt = require('jsonwebtoken'); // Diperlukan untuk membuat token baru
+const jwt = require('jsonwebtoken'); 
 
 const router = express.Router();
 
-// Ambil kunci dari variabel lingkungan (harus sama dengan auth.js)
 const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'RS256';
 
@@ -35,7 +34,6 @@ router.get('/:id', (req, res) => {
   });
 });
 
-// RUTE BARU: PUT /api/users/join-team
 router.put('/join-team', (req, res) => {
   const userId = req.headers['x-user-id']; 
   const { teamId } = req.body; 

@@ -4,7 +4,6 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-// Impor rute-rute baru
 const userRoutes = require('./routes/users');
 const authRoutes = require('./routes/auth');
 const teamRoutes = require('./routes/teams');
@@ -33,8 +32,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Gunakan rute-rute baru
-app.use('/api/auth', authRoutes); // Ini yang penting untuk /register
+app.use('/api/auth', authRoutes); 
 app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
 

@@ -37,7 +37,7 @@ const UPDATE_TASK_STATUS = gql`
   }
 `;
 
-// MUTASI BARU
+
 const DELETE_TASK = gql`
   mutation DeleteTask($id: ID!) {
     deleteTask(id: $id)
@@ -58,40 +58,36 @@ const TASK_SUBSCRIPTION = gql`
   }
 `;
 
-// 2. Tipe Data (DIPERBARUI)
+
 type Task = {
   id: string;
   title: string;
   description: string;
   status: 'todo' | 'inprogress' | 'done';
 };
-// Tambahkan 'role'
+
 type User = { id: string; name: string; email: string; teamId: string; role: string };
 type Notification = { id: string; message: string };
 
 
-// 3. KOMPONEN UTAMA (DIPERBARUI)
 export default function Home() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loadingApp, setLoadingApp] = useState(true); // <-- State loading baru
 
-  // EFEK BARU: Cek token saat aplikasi dimuat
   useEffect(() => {
     const checkTokenValidity = async () => {
       const storedToken = localStorage.getItem('jwt_token');
       
       if (!storedToken) {
         setLoadingApp(false);
-        return; // Tidak ada token, berhenti (akan menampilkan halaman login)
+        return; 
       }
 
       try {
-        // Panggil endpoint baru. Interceptor akan menambahkan token lama.
         const response = await authApi.checkToken();
         const { token: newToken, user: newUser } = response.data;
 
-        // Sukses! Simpan token BARU
         localStorage.setItem('jwt_token', newToken);
         localStorage.setItem('user_data', JSON.stringify(newUser));
         setToken(newToken);
@@ -99,7 +95,6 @@ export default function Home() {
         console.log('Token refreshed!');
 
       } catch (err) {
-        // Token lama tidak valid (expired, dll)
         console.log('Token check failed, logging out.');
         localStorage.removeItem('jwt_token');
         localStorage.removeItem('user_data');
@@ -111,7 +106,7 @@ export default function Home() {
     };
 
     checkTokenValidity();
-  }, []); // <-- [] berarti hanya jalan sekali saat app load
+  }, []); 
 
   const handleLogout = () => {
     localStorage.removeItem('jwt_token');
@@ -121,7 +116,6 @@ export default function Home() {
     window.location.reload(); 
   };
 
-  // Tampilkan layar loading saat token sedang dicek
   if (loadingApp) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -130,7 +124,6 @@ export default function Home() {
     );
   }
 
-  // Jika tidak loading, lanjutkan ke logika seperti biasa
   if (!token || !user) {
     return <AuthPage setToken={setToken} setUser={setUser} />;
   }
@@ -161,7 +154,6 @@ export default function Home() {
   );
 }
 
-// 4. KOMPONEN AUTENTIKASI (Sama seperti sebelumnya, tidak perlu diubah)
 function AuthPage({ setToken, setUser }: { setToken: (token: string) => void, setUser: (user: User) => void }) {
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -220,7 +212,6 @@ function AuthPage({ setToken, setUser }: { setToken: (token: string) => void, se
   );
 }
 
-// 5. KOMPONEN PAPAN TUGAS (DIPERBARUI)
 function TaskBoard({ user }: { user: User }) {
   const { teamId } = user;
   const { data, loading, error, refetch } = useQuery(GET_TASKS, { 
@@ -252,7 +243,6 @@ function TaskBoard({ user }: { user: User }) {
       <NewTaskForm teamId={teamId} />
       <NotificationFeed notifications={notifications} />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-        {/* Kirim user ke TaskColumn */}
         <TaskColumn title="To Do" tasks={todoTasks} user={user} />
         <TaskColumn title="In Progress" tasks={inprogressTasks} user={user} />
         <TaskColumn title="Done" tasks={doneTasks} user={user} />
@@ -261,7 +251,7 @@ function TaskBoard({ user }: { user: User }) {
   );
 }
 
-// 6. KOLOM TUGAS (DIPERBARUI)
+
 function TaskColumn({ title, tasks, user }: { title: string; tasks: Task[]; user: User }) {
   const [updateTaskStatus] = useMutation(UPDATE_TASK_STATUS);
   
@@ -286,7 +276,6 @@ function TaskColumn({ title, tasks, user }: { title: string; tasks: Task[]; user
       <h3 className="font-bold text-xl mb-4 text-gray-800">{title}</h3>
       <div className="space-y-3">
         {tasks.map((task) => (
-          // Kirim user ke TaskCard
           <TaskCard key={task.id} task={task} user={user} />
         ))}
         {tasks.length === 0 && <p className="text-gray-500 text-sm italic text-center">Empty</p>}
@@ -295,7 +284,6 @@ function TaskColumn({ title, tasks, user }: { title: string; tasks: Task[]; user
   );
 }
 
-// 7. KARTU TUGAS (DIPERBARUI)
 function TaskCard({ task, user }: { task: Task; user: User }) {
   const [deleteTask, { loading }] = useMutation(DELETE_TASK);
 
@@ -309,7 +297,7 @@ function TaskCard({ task, user }: { task: Task; user: User }) {
       await deleteTask({ variables: { id: task.id } });
     } catch (err: any) {
       console.error('Failed to delete task:', err);
-      alert(`Error: ${err.message}`); // Tampilkan error jika bukan admin
+      alert(`Error: ${err.message}`); 
     }
   };
 
@@ -321,7 +309,6 @@ function TaskCard({ task, user }: { task: Task; user: User }) {
     >
       <div className="flex justify-between items-start">
         <h4 className="font-semibold">{task.title}</h4>
-        {/* LOGIKA PERAN BARU: Tampilkan tombol Hapus HANYA jika admin */}
         {user.role === 'admin' && (
           <button 
             onClick={handleDelete}
@@ -338,7 +325,6 @@ function TaskCard({ task, user }: { task: Task; user: User }) {
   );
 }
 
-// 8. FORM TUGAS BARU (Sama seperti sebelumnya, tidak perlu diubah)
 function NewTaskForm({ teamId }: { teamId: string }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -363,7 +349,7 @@ function NewTaskForm({ teamId }: { teamId: string }) {
   );
 }
 
-// 9. UMPAN NOTIFIKASI (Sama seperti sebelumnya, tidak perlu diubah)
+
 function NotificationFeed({ notifications }: { notifications: Notification[] }) {
   if (notifications.length === 0) return null;
   return (
@@ -378,7 +364,6 @@ function NotificationFeed({ notifications }: { notifications: Notification[] }) 
   );
 }
 
-// 10. Komponen "Join Team" (Sama seperti sebelumnya, tidak perlu diubah)
 function JoinTeamPage({ user, onTeamJoined }: { user: User, onTeamJoined: (user: User) => void }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

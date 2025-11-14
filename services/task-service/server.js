@@ -13,7 +13,7 @@ const app = express();
 const pubsub = new PubSub();
 const NOTIFICATION_ADDED = 'NOTIFICATION_ADDED';
 
-// In-memory data (DIPERBARUI DENGAN USER ID DUMMY)
+
 let tasks = [
   {
     id: '1',
@@ -21,7 +21,7 @@ let tasks = [
     description: 'Create folders for all 4 services',
     status: 'done',
     teamId: 'team-1',
-    assignedToId: 'admin-user-01', // Ditugaskan ke Admin
+    assignedToId: 'admin-user-01', 
     createdAt: new Date().toISOString()
   },
   {
@@ -30,7 +30,7 @@ let tasks = [
     description: 'User service creates token, Gateway verifies token',
     status: 'inprogress',
     teamId: 'team-1',
-    assignedToId: 'admin-user-01', // Ditugaskan ke Admin
+    assignedToId: 'admin-user-01', 
     createdAt: new Date().toISOString()
   },
     {
@@ -39,12 +39,12 @@ let tasks = [
     description: 'Create login page and task board',
     status: 'todo',
     teamId: 'team-1',
-    assignedToId: 'normal-user-02', // Ditugaskan ke User Biasa
+    assignedToId: 'normal-user-02', 
     createdAt: new Date().toISOString()
   }
 ];
 
-// GraphQL type definitions (TIDAK BERUBAH)
+
 const typeDefs = `
   enum TaskStatus { todo, inprogress, done }
   type Task { id: ID!, title: String!, description: String, status: TaskStatus!, teamId: ID!, assignedToId: ID, createdAt: String! }
@@ -58,7 +58,7 @@ const typeDefs = `
   type Subscription { notificationAdded(teamId: ID!): Notification! }
 `;
 
-// GraphQL resolvers (TIDAK BERUBAH)
+
 const resolvers = {
   Query: {
     tasks: (_, { teamId }, context) => {
@@ -134,7 +134,6 @@ const resolvers = {
   },
 };
 
-// Start Server (TIDAK BERUBAH)
 async function startServer() {
   app.use(cors());
   const schema = makeExecutableSchema({ typeDefs, resolvers });
