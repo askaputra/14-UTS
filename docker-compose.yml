@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # User Service (REST)
+  user-service:
+    build: ./services/user-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=${USER_SERVICE_PORT:-3001}
+      - NODE_ENV=${NODE_ENV:-production}
+      - PRIVATE_KEY=${PRIVATE_KEY}
+      - PUBLIC_KEY=${PUBLIC_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+    volumes:
+      - ./services/user-service:/app
+      - /app/node_modules
+    networks:
+      - microservices-network
+
+  # Task Service (GraphQL)
+  task-service:
+    build: ./services/task-service
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=${TASK_SERVICE_PORT:-4000}
+      - NODE_ENV=${NODE_ENV:-production}
+    volumes:
+      - ./services/task-service:/app
+      - /app/node_modules
+    networks:
+      - microservices-network
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=${PORT:-3000}
+      - USER_SERVICE_URL=${USER_SERVICE_URL:-http://user-service:3001}
+      - TASK_SERVICE_URL=${TASK_SERVICE_URL:-http://task-service:4000}
+      - NODE_ENV=${NODE_ENV:-production}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+    depends_on:
+      - user-service
+      - task-service
+    volumes:
+      - ./api-gateway:/app
+      - /app/node_modules
+    networks:
+      - microservices-network
+
+  # Frontend Application
+  frontend-app:
+    build:
+      context: ./frontend-app
+      target: runner
+    ports:
+      - "3002:3000"
+    environment:
+      - NEXT_PUBLIC_API_GATEWAY_URL=${NEXT_PUBLIC_API_GATEWAY_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_GRAPHQL_URL=${NEXT_PUBLIC_GRAPHQL_URL:-http://localhost:3000/graphql}
+    depends_on:
+      - api-gateway
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
