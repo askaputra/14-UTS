@@ -7,7 +7,6 @@ const router = express.Router();
 const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'RS256';
 
-// GET /api/users - Get all users
 router.get('/', (req, res) => {
   const safeUsers = users.map(u => ({
     id: u.id,
@@ -19,7 +18,6 @@ router.get('/', (req, res) => {
   res.json(safeUsers);
 });
 
-// GET /api/users/:id - Get user by ID
 router.get('/:id', (req, res) => {
   const user = users.find(u => u.id === req.params.id);
   if (!user) {

@@ -5,12 +5,10 @@ const { validateTeam } = require('../middleware/validation');
 
 const router = express.Router();
 
-// GET /api/teams - Get all teams
 router.get('/', (req, res) => {
   res.json(teams);
 });
 
-// POST /api/teams - Create new team
 router.post('/', validateTeam, (req, res) => {
   const { name } = req.body;
   const newTeam = {
@@ -22,7 +20,6 @@ router.post('/', validateTeam, (req, res) => {
   res.status(201).json(newTeam);
 });
 
-// GET /api/teams/:id - Get team by ID
 router.get('/:id', (req, res) => {
   const team = teams.find(t => t.id === req.params.id);
   if (!team) {
@@ -31,7 +28,6 @@ router.get('/:id', (req, res) => {
   res.json(team);
 });
 
-// GET /api/teams/:id/users - Get users in a team
 router.get('/:id/users', (req, res) => {
   const teamUsers = users
     .filter(u => u.teamId === req.params.id)

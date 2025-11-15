@@ -2,7 +2,6 @@
 version: '3.8'
 
 services:
-  # User Service (REST) - Nama diubah dari rest-api
   user-service:
     build: ./services/user-service
     ports:
@@ -20,7 +19,6 @@ services:
     networks:
       - microservices-network
 
-  # Task Service (GraphQL) - Nama diubah dari graphql-api
   task-service:
     build: ./services/task-service
     ports:
@@ -35,20 +33,17 @@ services:
     networks:
       - microservices-network
 
-  # API Gateway
   api-gateway:
     build: ./api-gateway
     ports:
       - "3000:3000"
     environment:
       - PORT=${PORT:-3000}
-      # Variabel lingkungan BARU (menggantikan REST_API_URL)
       - USER_SERVICE_URL=http://user-service:3001
       - TASK_SERVICE_URL=http://task-service:4000
       - NODE_ENV=development
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
     depends_on:
-      # Sesuaikan dengan nama layanan BARU
       - user-service
       - task-service
     volumes:
@@ -58,7 +53,6 @@ services:
     networks:
       - microservices-network
 
-  # Frontend Application
   frontend-app:
     build: 
       context: ./frontend-app

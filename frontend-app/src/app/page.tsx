@@ -73,7 +73,7 @@ type Notification = { id: string; message: string };
 export default function Home() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [loadingApp, setLoadingApp] = useState(true); // <-- State loading baru
+  const [loadingApp, setLoadingApp] = useState(true); 
 
   useEffect(() => {
     const checkTokenValidity = async () => {
